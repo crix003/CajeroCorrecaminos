@@ -12,6 +12,12 @@ namespace CajeroCorrecaminos.Modelos
         /// Pila de operaciones reversibles de esta cuenta (depósitos y transferencias enviadas).
         public Pila<Operacion> PilaReversas { get; } = new Pila<Operacion>();
 
+        /// Historial de reversas registradas para esta cuenta.
+        public Pila<Operacion> HistorialReversas { get; } = new Pila<Operacion>();
+
+        /// Historial permanente de operaciones mostrado en la sección de pilas.
+        public ListaEnlazada<Operacion> HistorialPila { get; } = new ListaEnlazada<Operacion>();
+
         public Cuenta(string numero, string titular, string pin, decimal saldo)
         {
             Numero = numero;

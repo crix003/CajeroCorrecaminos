@@ -31,12 +31,14 @@ namespace CajeroCorrecaminos
             pnlCajero = new Panel();
             lblMensaje = new Label();
             grpHistorial = new GroupBox();
+            btnEliminarBoletas = new Button();
             lstHistorial = new ListBox();
+            btnBorrarBoleta = new Button();
             grpPila = new GroupBox();
             lblPilaInfo = new Label();
             lstPila = new ListBox();
             grpOperaciones = new GroupBox();
-            btnLimpiarOperaciones = new Button();
+            BtnRevertir = new Button();
             lblMonto = new Label();
             txtMonto = new TextBox();
             lblDestino = new Label();
@@ -44,7 +46,6 @@ namespace CajeroCorrecaminos
             btnDepositar = new Button();
             btnRetirar = new Button();
             btnTransferir = new Button();
-            btnRevertir = new Button();
             pnlHeader = new Panel();
             lblBienvenida = new Label();
             lblSaldo = new Label();
@@ -65,7 +66,7 @@ namespace CajeroCorrecaminos
             pnlLogin.Dock = DockStyle.Fill;
             pnlLogin.Location = new Point(0, 0);
             pnlLogin.Name = "pnlLogin";
-            pnlLogin.Size = new Size(953, 560);
+            pnlLogin.Size = new Size(996, 560);
             pnlLogin.TabIndex = 1;
             // 
             // pnlLoginCard
@@ -191,7 +192,7 @@ namespace CajeroCorrecaminos
             pnlCajero.Dock = DockStyle.Fill;
             pnlCajero.Location = new Point(0, 0);
             pnlCajero.Name = "pnlCajero";
-            pnlCajero.Size = new Size(953, 560);
+            pnlCajero.Size = new Size(996, 560);
             pnlCajero.TabIndex = 0;
             pnlCajero.Visible = false;
             // 
@@ -206,37 +207,67 @@ namespace CajeroCorrecaminos
             // 
             // grpHistorial
             // 
+            grpHistorial.Controls.Add(btnEliminarBoletas);
             grpHistorial.Controls.Add(lstHistorial);
+            grpHistorial.Controls.Add(btnBorrarBoleta);
             grpHistorial.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            grpHistorial.Location = new Point(660, 90);
+            grpHistorial.Location = new Point(714, 90);
             grpHistorial.Name = "grpHistorial";
             grpHistorial.Size = new Size(260, 390);
             grpHistorial.TabIndex = 1;
             grpHistorial.TabStop = false;
-            grpHistorial.Text = "Historial (lista enlazada)";
+            grpHistorial.Text = "Boletas";
+            // 
+            // btnEliminarBoletas
+            // 
+            btnEliminarBoletas.BackColor = Color.DimGray;
+            btnEliminarBoletas.FlatAppearance.BorderSize = 0;
+            btnEliminarBoletas.FlatStyle = FlatStyle.Flat;
+            btnEliminarBoletas.ForeColor = Color.White;
+            btnEliminarBoletas.Location = new Point(10, 323);
+            btnEliminarBoletas.Name = "btnEliminarBoletas";
+            btnEliminarBoletas.Size = new Size(240, 50);
+            btnEliminarBoletas.TabIndex = 6;
+            btnEliminarBoletas.Text = "Eliminar todas las boletas";
+            btnEliminarBoletas.UseVisualStyleBackColor = false;
+            btnEliminarBoletas.Click += btnEliminarBoletas_Click;
             // 
             // lstHistorial
             // 
-            lstHistorial.Font = new Font("Consolas", 9F);
+            lstHistorial.Font = new Font("Segoe UI", 9F);
             lstHistorial.FormattingEnabled = true;
-            lstHistorial.HorizontalScrollbar = true;
-            lstHistorial.ItemHeight = 14;
-            lstHistorial.Location = new Point(10, 28);
+            lstHistorial.IntegralHeight = false;
+            lstHistorial.ItemHeight = 15;
+            lstHistorial.Location = new Point(10, 24);
             lstHistorial.Name = "lstHistorial";
-            lstHistorial.Size = new Size(240, 340);
+            lstHistorial.Size = new Size(240, 237);
             lstHistorial.TabIndex = 0;
+            // 
+            // btnBorrarBoleta
+            // 
+            btnBorrarBoleta.BackColor = Color.Firebrick;
+            btnBorrarBoleta.FlatAppearance.BorderSize = 0;
+            btnBorrarBoleta.FlatStyle = FlatStyle.Flat;
+            btnBorrarBoleta.ForeColor = Color.White;
+            btnBorrarBoleta.Location = new Point(10, 267);
+            btnBorrarBoleta.Name = "btnBorrarBoleta";
+            btnBorrarBoleta.Size = new Size(240, 50);
+            btnBorrarBoleta.TabIndex = 5;
+            btnBorrarBoleta.Text = "Eliminar boleta seleccionada";
+            btnBorrarBoleta.UseVisualStyleBackColor = false;
+            btnBorrarBoleta.Click += btnBorrarBoleta_Click;
             // 
             // grpPila
             // 
             grpPila.Controls.Add(lblPilaInfo);
             grpPila.Controls.Add(lstPila);
             grpPila.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            grpPila.Location = new Point(370, 90);
+            grpPila.Location = new Point(363, 90);
             grpPila.Name = "grpPila";
-            grpPila.Size = new Size(270, 390);
+            grpPila.Size = new Size(338, 390);
             grpPila.TabIndex = 2;
             grpPila.TabStop = false;
-            grpPila.Text = "Pila de reversas";
+            grpPila.Text = "Historial de registros(PILAS)";
             // 
             // lblPilaInfo
             // 
@@ -254,14 +285,14 @@ namespace CajeroCorrecaminos
             lstPila.FormattingEnabled = true;
             lstPila.HorizontalScrollbar = true;
             lstPila.ItemHeight = 14;
-            lstPila.Location = new Point(10, 65);
+            lstPila.Location = new Point(10, 62);
             lstPila.Name = "lstPila";
-            lstPila.Size = new Size(250, 298);
+            lstPila.Size = new Size(322, 298);
             lstPila.TabIndex = 1;
             // 
             // grpOperaciones
             // 
-            grpOperaciones.Controls.Add(btnLimpiarOperaciones);
+            grpOperaciones.Controls.Add(BtnRevertir);
             grpOperaciones.Controls.Add(lblMonto);
             grpOperaciones.Controls.Add(txtMonto);
             grpOperaciones.Controls.Add(lblDestino);
@@ -269,7 +300,6 @@ namespace CajeroCorrecaminos
             grpOperaciones.Controls.Add(btnDepositar);
             grpOperaciones.Controls.Add(btnRetirar);
             grpOperaciones.Controls.Add(btnTransferir);
-            grpOperaciones.Controls.Add(btnRevertir);
             grpOperaciones.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             grpOperaciones.Location = new Point(20, 90);
             grpOperaciones.Name = "grpOperaciones";
@@ -278,19 +308,19 @@ namespace CajeroCorrecaminos
             grpOperaciones.TabStop = false;
             grpOperaciones.Text = "Operaciones";
             // 
-            // btnLimpiarOperaciones
+            // BtnRevertir
             // 
-            btnLimpiarOperaciones.BackColor = Color.DimGray;
-            btnLimpiarOperaciones.FlatAppearance.BorderSize = 0;
-            btnLimpiarOperaciones.FlatStyle = FlatStyle.Flat;
-            btnLimpiarOperaciones.ForeColor = Color.White;
-            btnLimpiarOperaciones.Location = new Point(20, 324);
-            btnLimpiarOperaciones.Name = "btnLimpiarOperaciones";
-            btnLimpiarOperaciones.Size = new Size(290, 50);
-            btnLimpiarOperaciones.TabIndex = 6;
-            btnLimpiarOperaciones.Text = "Limpiar Operaciones";
-            btnLimpiarOperaciones.UseVisualStyleBackColor = false;
-            btnLimpiarOperaciones.Click += btnLimpiarOperaciones_Click;
+            BtnRevertir.BackColor = Color.IndianRed;
+            BtnRevertir.FlatAppearance.BorderSize = 0;
+            BtnRevertir.FlatStyle = FlatStyle.Flat;
+            BtnRevertir.ForeColor = Color.White;
+            BtnRevertir.Location = new Point(20, 275);
+            BtnRevertir.Name = "BtnRevertir";
+            BtnRevertir.Size = new Size(290, 42);
+            BtnRevertir.TabIndex = 5;
+            BtnRevertir.Text = "Revertir última operación";
+            BtnRevertir.UseVisualStyleBackColor = false;
+            BtnRevertir.Click += btnRevertir_Click;
             // 
             // lblMonto
             // 
@@ -369,20 +399,6 @@ namespace CajeroCorrecaminos
             btnTransferir.UseVisualStyleBackColor = false;
             btnTransferir.Click += btnTransferir_Click;
             // 
-            // btnRevertir
-            // 
-            btnRevertir.BackColor = Color.Firebrick;
-            btnRevertir.FlatAppearance.BorderSize = 0;
-            btnRevertir.FlatStyle = FlatStyle.Flat;
-            btnRevertir.ForeColor = Color.White;
-            btnRevertir.Location = new Point(20, 268);
-            btnRevertir.Name = "btnRevertir";
-            btnRevertir.Size = new Size(290, 50);
-            btnRevertir.TabIndex = 5;
-            btnRevertir.Text = "Revertir última operación";
-            btnRevertir.UseVisualStyleBackColor = false;
-            btnRevertir.Click += btnRevertir_Click;
-            // 
             // pnlHeader
             // 
             pnlHeader.BackColor = Color.FromArgb(30, 42, 68);
@@ -392,7 +408,7 @@ namespace CajeroCorrecaminos
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Location = new Point(0, 0);
             pnlHeader.Name = "pnlHeader";
-            pnlHeader.Size = new Size(953, 70);
+            pnlHeader.Size = new Size(996, 70);
             pnlHeader.TabIndex = 4;
             // 
             // lblBienvenida
@@ -432,7 +448,7 @@ namespace CajeroCorrecaminos
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(953, 560);
+            ClientSize = new Size(996, 560);
             Controls.Add(pnlCajero);
             Controls.Add(pnlLogin);
             FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -479,13 +495,14 @@ namespace CajeroCorrecaminos
         private System.Windows.Forms.Button btnDepositar;
         private System.Windows.Forms.Button btnRetirar;
         private System.Windows.Forms.Button btnTransferir;
-        private System.Windows.Forms.Button btnRevertir;
+        private System.Windows.Forms.Button btnBorrarBoleta;
         private System.Windows.Forms.GroupBox grpPila;
         private System.Windows.Forms.Label lblPilaInfo;
         private System.Windows.Forms.ListBox lstPila;
         private System.Windows.Forms.GroupBox grpHistorial;
         private System.Windows.Forms.ListBox lstHistorial;
         private System.Windows.Forms.Label lblMensaje;
-        private Button btnLimpiarOperaciones;
+        private Button btnEliminarBoletas;
+        private Button BtnRevertir;
     }
 }

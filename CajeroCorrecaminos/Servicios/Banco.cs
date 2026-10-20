@@ -42,6 +42,7 @@ namespace CajeroCorrecaminos.Servicios
             Operacion op = new Operacion(siguienteId++, TipoOperacion.Deposito, cuenta.Numero, null, monto);
             Historial.AgregarInicio(op);
             cuenta.PilaReversas.Apilar(op);
+            cuenta.HistorialPila.AgregarFinal(op);
 
             return new Resultado(true, $"Depósito de S/ {monto:0.00} realizado (operación #{op.Id:000}).");
         }
@@ -58,6 +59,8 @@ namespace CajeroCorrecaminos.Servicios
 
             Operacion op = new Operacion(siguienteId++, TipoOperacion.Retiro, cuenta.Numero, null, monto);
             Historial.AgregarInicio(op);
+            cuenta.PilaReversas.Apilar(op);
+            cuenta.HistorialPila.AgregarFinal(op);
 
             return new Resultado(true, $"Retiro de S/ {monto:0.00} realizado (operación #{op.Id:000}).");
         }
@@ -83,6 +86,7 @@ namespace CajeroCorrecaminos.Servicios
                                          origen.Numero, destino.Numero, monto);
             Historial.AgregarInicio(op);
             origen.PilaReversas.Apilar(op);
+            origen.HistorialPila.AgregarFinal(op);
 
             return new Resultado(true,
                 $"Transferencia de S/ {monto:0.00} a la cuenta {destino.Numero} (operación #{op.Id:000}).");
@@ -106,6 +110,10 @@ namespace CajeroCorrecaminos.Servicios
 
                 cuenta.Saldo -= op.Monto;
             }
+            else if (op.Tipo == TipoOperacion.Retiro)
+            {
+                cuenta.Saldo += op.Monto;
+            }
             else // Transferencia
             {
                 Cuenta? destino = BuscarCuenta(op.CuentaDestino ?? "");
@@ -126,6 +134,8 @@ namespace CajeroCorrecaminos.Servicios
             Operacion reversa = new Operacion(siguienteId++, TipoOperacion.Reversa,
                                               cuenta.Numero, destinoReversa, op.Monto, op.Id);
             Historial.AgregarInicio(reversa);
+            cuenta.HistorialReversas.Apilar(reversa);
+            cuenta.HistorialPila.AgregarFinal(reversa);
 
             return new Resultado(true, $"Se revirtió la operación #{op.Id:000} (S/ {op.Monto:0.00}).");
         }
@@ -138,6 +148,38 @@ namespace CajeroCorrecaminos.Servicios
                 if (op.CuentaOrigen == cuenta.Numero || op.CuentaDestino == cuenta.Numero)
                     yield return op;
             }
+        }
+
+        public Operacion RegistrarReversa(Cuenta cuenta, Operacion operacionOriginal)
+        {
+            return new Operacion(
+                siguienteId++,
+                TipoOperacion.Reversa,
+                cuenta.Numero,
+                operacionOriginal.CuentaDestino,
+                operacionOriginal.Monto,
+                operacionOriginal.Id);
+        }
+
+        public Operacion RegistrarEliminacionBoleta(Cuenta cuenta, Operacion boleta)
+        {
+            return new Operacion(
+                siguienteId++,
+                TipoOperacion.EliminacionBoleta,
+                cuenta.Numero,
+                boleta.CuentaDestino,
+                boleta.Monto,
+                boleta.Id);
+        }
+
+        public Operacion RegistrarEliminacionBoletas(Cuenta cuenta, int cantidad)
+        {
+            return new Operacion(
+                siguienteId++,
+                TipoOperacion.EliminacionBoletas,
+                cuenta.Numero,
+                null,
+                cantidad);
         }
     }
 }

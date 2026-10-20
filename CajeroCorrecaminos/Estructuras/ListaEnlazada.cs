@@ -52,6 +52,34 @@ namespace CajeroCorrecaminos.Estructuras
             return default;
         }
 
+        public bool EliminarPrimero(Func<T, bool> condicion)
+        {
+            Nodo<T>? anterior = null;
+            Nodo<T>? actual = cabeza;
+
+            while (actual != null)
+            {
+                if (condicion(actual.Dato))
+                {
+                    if (anterior == null)
+                        cabeza = actual.Siguiente;
+                    else
+                        anterior.Siguiente = actual.Siguiente;
+
+                    if (actual == ultimo)
+                        ultimo = anterior;
+
+                    Cantidad--;
+                    return true;
+                }
+
+                anterior = actual;
+                actual = actual.Siguiente;
+            }
+
+            return false;
+        }
+
         //Función para limpiar la lista enlazada
         public void Limpiar()
         {
