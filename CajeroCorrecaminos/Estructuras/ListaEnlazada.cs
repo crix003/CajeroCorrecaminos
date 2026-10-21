@@ -2,8 +2,7 @@ using System.Collections;
 
 namespace CajeroCorrecaminos.Estructuras
 {
-    // Lista Enlazada simple
-    // registro de cuentas e historial de movimientos.
+    // Lista Doblemente Enlazada
     public class ListaEnlazada<T> : IEnumerable<T>
     {
         private Nodo<T>? cabeza;
@@ -13,20 +12,31 @@ namespace CajeroCorrecaminos.Estructuras
 
         public bool EstaVacia => cabeza == null;
 
-        //Posiciona lo más reciente "primero" en historial
+        // Posiciona el nuevo elemento al inicio (Cabeza)
         public void AgregarInicio(T dato)
         {
             Nodo<T> nuevo = new Nodo<T>(dato);
-            nuevo.Siguiente = cabeza;
-            cabeza = nuevo;
-            if (ultimo == null) ultimo = nuevo;
+
+            if (cabeza == null)
+            {
+                cabeza = nuevo;
+                ultimo = nuevo;
+            }
+            else
+            {
+                nuevo.Siguiente = cabeza;
+                cabeza.Anterior = nuevo; // Se establece el enlace hacia atrás
+                cabeza = nuevo;
+            }
+
             Cantidad++;
         }
 
-        //Inserta al final, se guarda el puntero al último nodo
+        // Inserta al final usando el puntero 'ultimo'
         public void AgregarFinal(T dato)
         {
             Nodo<T> nuevo = new Nodo<T>(dato);
+
             if (cabeza == null)
             {
                 cabeza = nuevo;
@@ -35,12 +45,14 @@ namespace CajeroCorrecaminos.Estructuras
             else
             {
                 ultimo!.Siguiente = nuevo;
+                nuevo.Anterior = ultimo; // Se establece el enlace hacia atrás
                 ultimo = nuevo;
             }
+
             Cantidad++;
         }
 
-        // Busca el primer elemento que cumpla la condición (recorrido lineal)
+        // Busca el primer elemento que cumpla la condición (recorrido lineal hacia adelante)
         public T? Buscar(Func<T, bool> condicion)
         {
             Nodo<T>? actual = cabeza;
@@ -52,35 +64,50 @@ namespace CajeroCorrecaminos.Estructuras
             return default;
         }
 
+        // Elimina el primer elemento que cumpla la condición reconectando ambos enlaces
         public bool EliminarPrimero(Func<T, bool> condicion)
         {
-            Nodo<T>? anterior = null;
             Nodo<T>? actual = cabeza;
 
             while (actual != null)
             {
                 if (condicion(actual.Dato))
                 {
-                    if (anterior == null)
+                    // Si es la cabeza
+                    if (actual == cabeza)
+                    {
                         cabeza = actual.Siguiente;
+                        if (cabeza != null)
+                            cabeza.Anterior = null;
+                    }
                     else
-                        anterior.Siguiente = actual.Siguiente;
+                    {
+                        actual.Anterior!.Siguiente = actual.Siguiente;
+                    }
 
+                    // Si es el último nodo
                     if (actual == ultimo)
-                        ultimo = anterior;
+                    {
+                        ultimo = actual.Anterior;
+                        if (ultimo != null)
+                            ultimo.Siguiente = null;
+                    }
+                    else if (actual.Siguiente != null)
+                    {
+                        actual.Siguiente.Anterior = actual.Anterior;
+                    }
 
                     Cantidad--;
                     return true;
                 }
 
-                anterior = actual;
                 actual = actual.Siguiente;
             }
 
             return false;
         }
 
-        //Función para limpiar la lista enlazada
+        // Limpia la lista reseteando las referencias
         public void Limpiar()
         {
             cabeza = null;
@@ -88,6 +115,7 @@ namespace CajeroCorrecaminos.Estructuras
             Cantidad = 0;
         }
 
+        // Enumerador para recorrer del primero al último (de cabeza a último)
         public IEnumerator<T> GetEnumerator()
         {
             Nodo<T>? actual = cabeza;
@@ -97,6 +125,18 @@ namespace CajeroCorrecaminos.Estructuras
                 actual = actual.Siguiente;
             }
         }
+
+        // Nuevo método exclusivo de listas dobles: recorrer desde el último hacia la cabeza
+        public IEnumerable<T> RecorrerInverso()
+        {
+            Nodo<T>? actual = ultimo;
+            while (actual != null)
+            {
+                yield return actual.Dato;
+                actual = actual.Anterior;
+            }
+        }
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

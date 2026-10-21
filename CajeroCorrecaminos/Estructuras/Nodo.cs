@@ -1,17 +1,18 @@
 namespace CajeroCorrecaminos.Estructuras
 {
-
-    // Declaracion de los Nodos y punteros 
-    // Se usará de base para las listas enlazadas y pilas   
+    // Declaración de los Nodos con doble enlace (Siguiente y Anterior)
+    // Se utiliza en la lista enlazada y en la pila.
     public class Nodo<T>
     {
         public T Dato;
         public Nodo<T>? Siguiente;
+        public Nodo<T>? Anterior;
 
         public Nodo(T dato)
         {
             Dato = dato;
             Siguiente = null;
+            Anterior = null;
         }
     }
 }
