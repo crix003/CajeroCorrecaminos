@@ -126,7 +126,7 @@ namespace CajeroCorrecaminos.Estructuras
             }
         }
 
-        // Nuevo método exclusivo de listas dobles: recorrer desde el último hacia la cabeza
+        // Método exclusivo de listas dobles: recorrer desde el último hacia la cabeza
         public IEnumerable<T> RecorrerInverso()
         {
             Nodo<T>? actual = ultimo;

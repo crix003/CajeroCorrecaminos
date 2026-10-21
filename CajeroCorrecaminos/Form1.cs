@@ -141,7 +141,15 @@ namespace CajeroCorrecaminos
             lblBienvenida.Text = $"Cuenta {cuentaActual.Numero} - {cuentaActual.Titular}";
             lblSaldo.Text = $"Saldo: S/ {cuentaActual.Saldo:0.00}";
 
-            // Historial de pila: se recorre en el orden en que ocurrieron las operaciones
+            // Boletas: se recorre la pila desde el tope, la boleta más reciente primero
+            lstHistorial.Items.Clear();
+            foreach (Operacion op in cuentaActual.PilaReversas)
+                lstHistorial.Items.Add(op);
+
+            if (cuentaActual.PilaReversas.EstaVacia)
+                lstHistorial.Items.Add("(no hay boletas)");
+
+            // Historial de registros: se recorre la lista enlazada desde el más reciente
             lstPila.Items.Clear();
             List<Operacion> historialPila = new List<Operacion>();
             foreach (Operacion op in cuentaActual.HistorialPila)
@@ -158,13 +166,6 @@ namespace CajeroCorrecaminos
 
             if (cuentaActual.HistorialPila.EstaVacia)
                 lstPila.Items.Add("(historial vacío)");
-
-            btnBorrarBoleta.Enabled = !cuentaActual.PilaReversas.EstaVacia;
-
-            // Historial: recorrido de la lista enlazada (más reciente primero)
-            lstHistorial.Items.Clear();
-            foreach (Operacion op in banco.HistorialDe(cuentaActual))
-                lstHistorial.Items.Add(op);
         }
 
         private void lstHistorial_MeasureItem(object? sender, MeasureItemEventArgs e)
@@ -305,56 +306,23 @@ namespace CajeroCorrecaminos
             };
         }
 
-        private void btnBorrarBoleta_Click(object sender, EventArgs e)
-        {
-            if (lstHistorial.SelectedItem is not Operacion boletaSeleccionada)
-            {
-                MostrarMensaje("Selecciona una boleta para eliminar.", false);
-                return;
-            }
-
-            bool eliminoBoleta = banco.Historial.EliminarPrimero(
-                op => op.Id == boletaSeleccionada.Id);
-
-            if (!eliminoBoleta)
-            {
-                MostrarMensaje("No se pudo eliminar la boleta seleccionada.", false);
-                return;
-            }
-
-            Operacion eliminacion = banco.RegistrarEliminacionBoleta(
-                cuentaActual,
-                boletaSeleccionada);
-            cuentaActual.HistorialPila.AgregarFinal(eliminacion);
-
-            ActualizarVista();
-            MostrarMensaje("Boleta eliminada correctamente.", true);
-        }
-
         private void btnEliminarBoletas_Click(object sender, EventArgs e)
         {
-            int cantidadBoletas = 0;
-            foreach (Operacion op in banco.HistorialDe(cuentaActual!))
-                cantidadBoletas++;
+            if (cuentaActual == null) return;
 
+            int cantidadBoletas = cuentaActual.PilaReversas.Cantidad;
             if (cantidadBoletas > 0)
             {
                 Operacion eliminacion = banco.RegistrarEliminacionBoletas(
-                    cuentaActual!,
+                    cuentaActual,
                     cantidadBoletas);
-                cuentaActual!.HistorialPila.AgregarFinal(eliminacion);
+                cuentaActual.HistorialPila.AgregarFinal(eliminacion);
             }
 
-            banco.Historial.Limpiar();
-            lstHistorial.Items.Clear();
+            cuentaActual.PilaReversas.Vaciar();
 
             ActualizarVista();
             MostrarMensaje("Boletas eliminadas correctamente.", true);
-        }
-
-        private void pnlCajero_Paint(object sender, PaintEventArgs e)
-        {
-
         }
     }
 }

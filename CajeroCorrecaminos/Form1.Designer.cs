@@ -33,7 +33,6 @@ namespace CajeroCorrecaminos
             grpHistorial = new GroupBox();
             btnEliminarBoletas = new Button();
             lstHistorial = new ListBox();
-            btnBorrarBoleta = new Button();
             grpPila = new GroupBox();
             lblPilaInfo = new Label();
             lstPila = new ListBox();
@@ -209,7 +208,6 @@ namespace CajeroCorrecaminos
             // 
             grpHistorial.Controls.Add(btnEliminarBoletas);
             grpHistorial.Controls.Add(lstHistorial);
-            grpHistorial.Controls.Add(btnBorrarBoleta);
             grpHistorial.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             grpHistorial.Location = new Point(714, 90);
             grpHistorial.Name = "grpHistorial";
@@ -240,22 +238,8 @@ namespace CajeroCorrecaminos
             lstHistorial.ItemHeight = 15;
             lstHistorial.Location = new Point(10, 24);
             lstHistorial.Name = "lstHistorial";
-            lstHistorial.Size = new Size(240, 237);
+            lstHistorial.Size = new Size(240, 293);
             lstHistorial.TabIndex = 0;
-            // 
-            // btnBorrarBoleta
-            // 
-            btnBorrarBoleta.BackColor = Color.Firebrick;
-            btnBorrarBoleta.FlatAppearance.BorderSize = 0;
-            btnBorrarBoleta.FlatStyle = FlatStyle.Flat;
-            btnBorrarBoleta.ForeColor = Color.White;
-            btnBorrarBoleta.Location = new Point(10, 267);
-            btnBorrarBoleta.Name = "btnBorrarBoleta";
-            btnBorrarBoleta.Size = new Size(240, 50);
-            btnBorrarBoleta.TabIndex = 5;
-            btnBorrarBoleta.Text = "Eliminar boleta seleccionada";
-            btnBorrarBoleta.UseVisualStyleBackColor = false;
-            btnBorrarBoleta.Click += btnBorrarBoleta_Click;
             // 
             // grpPila
             // 
@@ -267,7 +251,7 @@ namespace CajeroCorrecaminos
             grpPila.Size = new Size(338, 390);
             grpPila.TabIndex = 2;
             grpPila.TabStop = false;
-            grpPila.Text = "Historial de registros(PILAS)";
+            grpPila.Text = "Historial de registros";
             // 
             // lblPilaInfo
             // 
@@ -495,7 +479,6 @@ namespace CajeroCorrecaminos
         private System.Windows.Forms.Button btnDepositar;
         private System.Windows.Forms.Button btnRetirar;
         private System.Windows.Forms.Button btnTransferir;
-        private System.Windows.Forms.Button btnBorrarBoleta;
         private System.Windows.Forms.GroupBox grpPila;
         private System.Windows.Forms.Label lblPilaInfo;
         private System.Windows.Forms.ListBox lstPila;
