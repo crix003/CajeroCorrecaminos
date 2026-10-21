@@ -5,7 +5,9 @@ namespace CajeroCorrecaminos.Modelos
         Deposito,
         Retiro,
         Transferencia,
-        Reversa
+        Reversa,
+        EliminacionBoleta,
+        EliminacionBoletas
     }
 
     /// movimiento del cajero (depósito, retiro, transferencia o reversa).
@@ -42,15 +44,23 @@ namespace CajeroCorrecaminos.Modelos
                 TipoOperacion.Deposito => "Depósito",
                 TipoOperacion.Retiro => "Retiro",
                 TipoOperacion.Transferencia => "Transferencia",
-                _ => "Reversa"
+                TipoOperacion.Reversa => "Reversa",
+                TipoOperacion.EliminacionBoleta => "Eliminación de boleta",
+                _ => "Eliminación de boletas"
             };
 
-            string texto = $"#{Id:000} {Fecha:HH:mm:ss}  {nombre}  S/ {Monto:0.00}";
+            string texto = Tipo is TipoOperacion.EliminacionBoleta or TipoOperacion.EliminacionBoletas
+                ? $"#{Id:000} {Fecha:HH:mm:ss}  {nombre}"
+                : $"#{Id:000} {Fecha:HH:mm:ss}  {nombre}  S/ {Monto:0.00}";
 
             if (Tipo == TipoOperacion.Transferencia)
                 texto += $"  ({CuentaOrigen} → {CuentaDestino})";
             else if (Tipo == TipoOperacion.Reversa)
                 texto += $"  (anula #{IdReferencia:000})";
+            else if (Tipo == TipoOperacion.EliminacionBoleta)
+                texto += $"  (elimina #{IdReferencia:000})";
+            else if (Tipo == TipoOperacion.EliminacionBoletas)
+                texto += $"  ({Monto:0} boletas eliminadas)";
 
             if (Revertida) texto += "  [REVERTIDA]";
             return texto;

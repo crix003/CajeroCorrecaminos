@@ -13,6 +13,11 @@ namespace CajeroCorrecaminos
         {
             InitializeComponent();
             this.AcceptButton = btnIngresar;
+
+            lstHistorial.DrawMode = DrawMode.OwnerDrawVariable;
+            lstHistorial.HorizontalScrollbar = false;
+            lstHistorial.MeasureItem += lstHistorial_MeasureItem;
+            lstHistorial.DrawItem += lstHistorial_DrawItem;
         }
 
         // ---------------- LOGIN ----------------
@@ -136,41 +141,188 @@ namespace CajeroCorrecaminos
             lblBienvenida.Text = $"Cuenta {cuentaActual.Numero} - {cuentaActual.Titular}";
             lblSaldo.Text = $"Saldo: S/ {cuentaActual.Saldo:0.00}";
 
-            // Pila: se recorre del tope al fondo
-            lstPila.Items.Clear();
-            bool esTope = true;
-            foreach (Operacion op in cuentaActual.PilaReversas)
-            {
-                lstPila.Items.Add((esTope ? "TOPE > " : "        ") + op);
-                esTope = false;
-            }
-            if (cuentaActual.PilaReversas.EstaVacia)
-                lstPila.Items.Add("(pila vacía)");
-
-            btnRevertir.Enabled = !cuentaActual.PilaReversas.EstaVacia;
-
-            // Historial: recorrido de la lista enlazada (más reciente primero)
+            // Boletas: se recorre la pila desde el tope, la boleta más reciente primero
             lstHistorial.Items.Clear();
-            foreach (Operacion op in banco.HistorialDe(cuentaActual))
-                lstHistorial.Items.Add(op.ToString());
+            foreach (Operacion op in cuentaActual.PilaReversas)
+                lstHistorial.Items.Add(op);
+
+            if (cuentaActual.PilaReversas.EstaVacia)
+                lstHistorial.Items.Add("(no hay boletas)");
+
+            // Historial de registros: se recorre la lista enlazada desde el más reciente
+            lstPila.Items.Clear();
+            List<Operacion> historialPila = new List<Operacion>();
+            foreach (Operacion op in cuentaActual.HistorialPila)
+                historialPila.Add(op);
+
+            for (int i = historialPila.Count - 1; i >= 0; i--)
+            {
+                Operacion op = historialPila[i];
+                string prefijo = op.Tipo == TipoOperacion.Reversa
+                    ? "REVERSA > "
+                    : "OPERACIÓN > ";
+                lstPila.Items.Add(prefijo + op);
+            }
+
+            if (cuentaActual.HistorialPila.EstaVacia)
+                lstPila.Items.Add("(historial vacío)");
         }
 
-        private void btnLimpiarOperaciones_Click(object sender, EventArgs e)
+        private void lstHistorial_MeasureItem(object? sender, MeasureItemEventArgs e)
         {
-            banco.Historial.Limpiar();
+            e.ItemHeight = 150;
+        }
 
-            foreach (Cuenta c in banco.Cuentas)
+        private void lstHistorial_DrawItem(object? sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= lstHistorial.Items.Count)
+                return;
+
+            if (lstHistorial.Items[e.Index] is not Operacion operacion)
+                return;
+
+            e.DrawBackground();
+
+            Graphics graphics = e.Graphics;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            Rectangle area = new Rectangle(
+                e.Bounds.X + 5,
+                e.Bounds.Y + 5,
+                e.Bounds.Width - 10,
+                e.Bounds.Height - 10);
+
+            using SolidBrush fondo = new SolidBrush(Color.WhiteSmoke);
+            using Pen borde = new Pen(Color.LightGray);
+            using Font titulo = new Font("Segoe UI", 9F, FontStyle.Bold);
+            using Font texto = new Font("Segoe UI", 8F);
+            using Font monto = new Font("Segoe UI", 10F, FontStyle.Bold);
+
+            graphics.FillRectangle(fondo, area);
+            graphics.DrawRectangle(borde, area);
+
+            int posicionY = area.Y + 8;
+
+            TextRenderer.DrawText(
+                graphics,
+                "CAJERO CORRECAMINOS",
+                titulo,
+                new Point(area.X + 8, posicionY),
+                Color.FromArgb(30, 42, 68));
+
+            posicionY += 19;
+
+            using Pen separador = new Pen(Color.LightGray);
+            graphics.DrawLine(
+                separador,
+                area.X + 8,
+                posicionY + 7,
+                area.Right - 8,
+                posicionY + 7);
+
+            posicionY += 17;
+
+            TextRenderer.DrawText(
+                graphics,
+                $"Operación: #{operacion.Id:000}",
+                texto,
+                new Point(area.X + 8, posicionY),
+                Color.DimGray);
+
+            if (operacion.Revertida)
             {
-                c.PilaReversas.Vaciar();
+                TextRenderer.DrawText(
+                    graphics,
+                    "REVERTIDA",
+                    texto,
+                    new Point(area.X + 125, posicionY),
+                    Color.Firebrick);
             }
 
-            // Limpia las listas y actualiza la vista
-            lstPila.Items.Clear();
-            lstHistorial.Items.Clear();
+            posicionY += 16;
 
-            MostrarMensaje("Historial y pila limpiados.", true);
+            TextRenderer.DrawText(
+                graphics,
+                operacion.Fecha.ToString("dd/MM/yyyy HH:mm"),
+                texto,
+                new Point(area.X + 8, posicionY),
+                Color.DimGray);
+
+            posicionY += 18;
+
+            TextRenderer.DrawText(
+                graphics,
+                ObtenerNombreOperacion(operacion.Tipo),
+                titulo,
+                new Point(area.X + 8, posicionY),
+                ObtenerColorOperacion(operacion.Tipo));
+
+            posicionY += 19;
+
+            string cuentas = operacion.Tipo == TipoOperacion.Transferencia
+                ? $"De: {operacion.CuentaOrigen}  A: {operacion.CuentaDestino}"
+                : $"Cuenta: {operacion.CuentaOrigen}";
+
+            TextRenderer.DrawText(
+                graphics,
+                cuentas,
+                texto,
+                new Point(area.X + 8, posicionY),
+                Color.DimGray);
+
+            posicionY += 20;
+
+            TextRenderer.DrawText(
+                graphics,
+                $"MONTO: S/ {operacion.Monto:0.00}",
+                monto,
+                new Point(area.X + 8, posicionY),
+                Color.FromArgb(30, 42, 68));
+
+            e.DrawFocusRectangle();
+        }
+
+        private static string ObtenerNombreOperacion(TipoOperacion tipo)
+        {
+            return tipo switch
+            {
+                TipoOperacion.Deposito => "DEPÓSITO",
+                TipoOperacion.Retiro => "RETIRO",
+                TipoOperacion.Transferencia => "TRANSFERENCIA",
+                TipoOperacion.Reversa => "REVERSA",
+                _ => "OPERACIÓN"
+            };
+        }
+
+        private static Color ObtenerColorOperacion(TipoOperacion tipo)
+        {
+            return tipo switch
+            {
+                TipoOperacion.Deposito => Color.SeaGreen,
+                TipoOperacion.Retiro => Color.FromArgb(70, 100, 160),
+                TipoOperacion.Transferencia => Color.DarkOrange,
+                TipoOperacion.Reversa => Color.Firebrick,
+                _ => Color.Black
+            };
+        }
+
+        private void btnEliminarBoletas_Click(object sender, EventArgs e)
+        {
+            if (cuentaActual == null) return;
+
+            int cantidadBoletas = cuentaActual.PilaReversas.Cantidad;
+            if (cantidadBoletas > 0)
+            {
+                Operacion eliminacion = banco.RegistrarEliminacionBoletas(
+                    cuentaActual,
+                    cantidadBoletas);
+                cuentaActual.HistorialPila.AgregarFinal(eliminacion);
+            }
+
+            cuentaActual.PilaReversas.Vaciar();
+
             ActualizarVista();
-
+            MostrarMensaje("Boletas eliminadas correctamente.", true);
         }
     }
 }
